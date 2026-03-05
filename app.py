@@ -185,7 +185,7 @@ def set_pump_enabled(pin: int, enabled: bool) -> None:
 
 def disable_pump_safe(pin: int) -> None:
     try:
-        set_pump_enabled(pin, False)
+        set_pump_enabled(pin, PUMP_SIGNAL_OFF)
     except Exception as exc:  # pragma: no cover - hardware dependent
         LOGGER.error("Failed to disable pin %s: %s", pin, exc)
 
@@ -242,7 +242,7 @@ def process_task(channel, payload: dict) -> None:
     pin = PUMP_PIN_MAPPING[pump_number]
 
     try:
-        set_pump_enabled(pin, True)
+        set_pump_enabled(pin, PUMP_SIGNAL_ON)
     except Exception as exc:
         publish_task_status(channel, task_number, STATUS_FAILED, f"Failed to enable pump: {exc}")
         disable_pump_safe(pin)
