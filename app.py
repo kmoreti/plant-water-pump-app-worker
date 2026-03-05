@@ -176,6 +176,7 @@ def setup_gpio() -> None:
     GPIO.setmode(GPIO.BCM)
     for pin in PUMP_PIN_MAPPING.values():
         GPIO.setup(pin, GPIO.OUT, initial=PUMP_SIGNAL_OFF)
+        GPIO.output(pin, PUMP_SIGNAL_OFF)
 
 
 def set_pump_enabled(pin: int, enabled: bool) -> None:
