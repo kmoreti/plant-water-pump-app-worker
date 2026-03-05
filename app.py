@@ -14,6 +14,7 @@ except Exception:  # pragma: no cover - allows local/non-Pi runs
     class _MockGPIO:
         BCM = "BCM"
         OUT = "OUT"
+        _pin_state = {}
 
         @staticmethod
         def setmode(_mode):
@@ -25,11 +26,15 @@ except Exception:  # pragma: no cover - allows local/non-Pi runs
 
         @staticmethod
         def setup(_pin, _mode, initial=False):
-            pass
+            _MockGPIO._pin_state[_pin] = initial
 
         @staticmethod
         def output(_pin, _value):
-            pass
+            _MockGPIO._pin_state[_pin] = _value
+
+        @staticmethod
+        def input(_pin):
+            return _MockGPIO._pin_state.get(_pin, True)
 
         @staticmethod
         def cleanup(_pin=None):
@@ -186,9 +191,21 @@ def set_pump_enabled(pin: int, enabled: bool) -> None:
 
 def disable_pump_safe(pin: int) -> None:
     try:
-        set_pump_enabled(pin, PUMP_SIGNAL_OFF)
+        set_pump_enabled(pin, False)
     except Exception as exc:  # pragma: no cover - hardware dependent
         LOGGER.error("Failed to disable pin %s: %s", pin, exc)
+
+
+def log_pump_pin_states() -> None:
+    states = []
+    for pump_number, pin in sorted(PUMP_PIN_MAPPING.items()):
+        try:
+            signal = GPIO.input(pin)
+            state = "ON" if signal == PUMP_SIGNAL_ON else "OFF"
+            states.append(f"pump={pump_number} pin={pin} state={state} signal={signal}")
+        except Exception as exc:  # pragma: no cover - hardware dependent
+            states.append(f"pump={pump_number} pin={pin} state=UNKNOWN error={exc}")
+    LOGGER.info("GPIO startup states: %s", "; ".join(states))
 
 
 def heartbeat_loop(stop_event: threading.Event) -> None:
@@ -243,7 +260,7 @@ def process_task(channel, payload: dict) -> None:
     pin = PUMP_PIN_MAPPING[pump_number]
 
     try:
-        set_pump_enabled(pin, PUMP_SIGNAL_ON)
+        set_pump_enabled(pin, True)
     except Exception as exc:
         publish_task_status(channel, task_number, STATUS_FAILED, f"Failed to enable pump: {exc}")
         disable_pump_safe(pin)
@@ -299,6 +316,7 @@ def run_consumer(stop_event: threading.Event) -> None:
 def main() -> None:
     LOGGER.info("Pump pin mapping: %s", PUMP_PIN_MAPPING)
     setup_gpio()
+    log_pump_pin_states()
 
     stop_event = threading.Event()
     hb_thread = threading.Thread(target=heartbeat_loop, args=(stop_event,), daemon=True)
