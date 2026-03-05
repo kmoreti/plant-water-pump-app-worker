@@ -1,0 +1,2 @@
+docker build -t localhost:5000/plant-water-pump-worker:1.0.0 .
+docker push localhost:5000/plant-water-pump-worker:1.0.0

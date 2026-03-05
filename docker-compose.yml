@@ -1,0 +1,30 @@
+services:
+  pump-worker:
+    build: .
+    image: plant-water-pump-worker:latest
+    container_name: pump-worker
+    restart: unless-stopped
+    init: true
+    privileged: true
+    devices:
+      - /dev/gpiomem:/dev/gpiomem
+      - /dev/gpiochip0:/dev/gpiochip0
+      - /dev/gpiochip1:/dev/gpiochip1
+    environment:
+      RABBIT_HOST: ${RABBIT_HOST}
+      RABBIT_PORT: ${RABBIT_PORT:-5672}
+      RABBIT_USER: ${RABBIT_USER}
+      RABBIT_PASS: ${RABBIT_PASS}
+      RABBIT_VHOST: ${RABBIT_VHOST:-/}
+      RABBIT_HEARTBEAT: ${RABBIT_HEARTBEAT:-60}
+      TASKS_QUEUE: ${TASKS_QUEUE:-tasks}
+      TASK_STATUSES_QUEUE: ${TASK_STATUSES_QUEUE:-task-statuses}
+      WORKER_STATUS_QUEUE: ${WORKER_STATUS_QUEUE:-worker-status}
+      WORKER_ID: ${WORKER_ID:-raspberry-pi-4}
+      MAX_TASK_AGE_SECONDS: ${MAX_TASK_AGE_SECONDS:-300}
+      HEARTBEAT_INTERVAL_SECONDS: ${HEARTBEAT_INTERVAL_SECONDS:-10}
+      PUMP_PIN_MAP: ${PUMP_PIN_MAP:-}
+      PUMP1_PIN: ${PUMP1_PIN:-17}
+      PUMP2_PIN: ${PUMP2_PIN:-27}
+      PUMP3_PIN: ${PUMP3_PIN:-22}
+      PUMP4_PIN: ${PUMP4_PIN:-23}
