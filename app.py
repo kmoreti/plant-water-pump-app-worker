@@ -58,6 +58,9 @@ ALLOWED_STATUSES = {
     STATUS_EXPIRED,
 }
 
+PUMP_SIGNAL_ON = False
+PUMP_SIGNAL_OFF = True
+
 
 class Settings:
     rabbit_host = os.getenv("RABBIT_HOST", "rabbitmq")
@@ -172,11 +175,12 @@ def setup_gpio() -> None:
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     for pin in PUMP_PIN_MAPPING.values():
-        GPIO.setup(pin, GPIO.OUT, initial=False)
+        GPIO.setup(pin, GPIO.OUT, initial=PUMP_SIGNAL_OFF)
 
 
 def set_pump_enabled(pin: int, enabled: bool) -> None:
-    GPIO.output(pin, bool(enabled))
+    signal = PUMP_SIGNAL_ON if bool(enabled) else PUMP_SIGNAL_OFF
+    GPIO.output(pin, signal)
 
 
 def disable_pump_safe(pin: int) -> None:
