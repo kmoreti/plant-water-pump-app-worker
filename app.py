@@ -82,6 +82,7 @@ class Settings:
     worker_id = os.getenv("WORKER_ID", os.getenv("WORKER_ID", "raspberry-pi-worker"))
     max_task_age_seconds = int(os.getenv("MAX_TASK_AGE_SECONDS", "300"))
     heartbeat_interval_seconds = int(os.getenv("HEARTBEAT_INTERVAL_SECONDS", "10"))
+    inter_task_delay_seconds = int(os.getenv("INTER_TASK_DELAY_SECONDS", "5"))
 
 
 def _utc_now() -> datetime:
@@ -302,6 +303,8 @@ def run_consumer(stop_event: threading.Event) -> None:
             except Exception:
                 LOGGER.error("Unable to publish failed status for malformed task message")
             ch.basic_ack(delivery_tag=method.delivery_tag)
+        finally:
+            time.sleep(Settings.inter_task_delay_seconds)
 
     channel.basic_consume(queue=Settings.tasks_queue, on_message_callback=callback, auto_ack=False)
 
