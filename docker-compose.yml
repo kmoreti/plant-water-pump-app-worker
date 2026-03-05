@@ -1,7 +1,7 @@
 services:
   pump-worker:
     build: .
-    image: plant-water-pump-worker:latest
+    image: plant-water-pump-worker:1.0.0
     container_name: pump-worker
     restart: unless-stopped
     init: true
