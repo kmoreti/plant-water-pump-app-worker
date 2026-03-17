@@ -28,3 +28,7 @@ services:
       PUMP2_PIN: ${PUMP2_PIN:-27}
       PUMP3_PIN: ${PUMP3_PIN:-22}
       PUMP4_PIN: ${PUMP4_PIN:-23}
+      PUMP5_PIN: ${PUMP5_PIN:-24}
+      PUMP6_PIN: ${PUMP6_PIN:-25}
+      PUMP7_PIN: ${PUMP7_PIN:-5}
+      PUMP8_PIN: ${PUMP8_PIN:-6}

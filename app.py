@@ -113,13 +113,14 @@ def _build_pump_pin_mapping() -> Dict[int, int]:
         return {int(k): int(v) for k, v in parsed.items()}
 
     mapping = {}
-    for pump in range(1, 5):
+    for pump in range(1, 9):
         env_name = f"PUMP{pump}_PIN"
-        if env_name in os.environ:
-            mapping[pump] = int(os.environ[env_name])
+        raw_pin = os.getenv(env_name, "").strip()
+        if raw_pin:
+            mapping[pump] = int(raw_pin)
 
     if not mapping:
-        mapping = {1: 17, 2: 27, 3: 22, 4: 23}
+        mapping = {1: 17, 2: 27, 3: 22, 4: 23, 5: 24, 6: 25, 7: 5, 8: 6}
 
     return mapping
 
